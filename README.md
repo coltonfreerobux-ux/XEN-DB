@@ -1,21 +1,27 @@
 # District Desk
 
-A responsive, dependency-free front-end prototype for district administration workflows.
+A responsive district administration and staff portal backed by a shared PostgreSQL database. Users can sign in from different devices and see the same applications, accounts, roles, tasks, and service requests.
 
-## Included workflows
+## Deploy on Render
 
-- One-time owner setup and sign-in.
-- District admin applications; the owner can approve or deny requests.
-- Approved district admins can sign in and create staff accounts with assigned roles.
-- Role-based tasks and staff task completion.
-- Admin-created service forms that appear to matching staff roles; submissions become tasks for the service's target roles.
+This app is a Node.js web service, not a static site. It needs a PostgreSQL database because a Render web service's local filesystem is not shared between devices and can be reset on deploy/restart.
 
-## Run it
+### Connect a database to your existing Render web service
 
-Open `index.html` in a modern browser, or serve this folder with any static web server. The first screen lets you set up the demo owner account. Use a second browser session to test another account in the same browser profile.
+1. In Render, create a PostgreSQL database (or use an existing one).
+2. Open the database's **Info** page and copy its **Internal Database URL**.
+3. Open your web service **Environment** settings. Add `DATABASE_URL` with that internal URL, `SESSION_SECRET` with a unique random value of at least 32 characters, and `NODE_ENV` set to `production`.
+4. Confirm the service uses **Build Command** `npm install` and **Start Command** `npm start`.
+5. Save changes and redeploy. The server creates its table automatically on startup.
 
-## Important security and deployment note
+Alternatively, use `render.yaml` to create a Render web service and its managed PostgreSQL database together from a Blueprint. If your current service was created separately, make sure it receives the `DATABASE_URL` environment variable from its connected database before deploying this version.
 
-This repository started as an empty static site, so this implementation is a **single-browser demo**, not a production authentication or multi-user system. Accounts, approvals, roles, and work items live in browser `localStorage`; they are not sent to an owner over the internet and are not shared across devices. Passwords are PBKDF2-hashed in the browser, but client-side storage and authorization can be inspected or changed by the browser user. Do not use real credentials or sensitive information. A production deployment needs a trusted backend, server-side authorization, a database, and a secure identity provider; the owner approval and staff provisioning actions must be enforced server-side.
+### First login
 
-To reset the demo, clear this site's local storage and session storage in your browser.
+Visit your Render service URL after deployment and create the owner account. Do this promptly: the first successful setup claims the single owner account. Then apply as a district admin and approve the application from the owner console.
+
+## Security and persistence
+
+Passwords are hashed on the server with PBKDF2; sessions use a signed, HTTP-only cookie. Access to state mutations is checked on the server. PostgreSQL is the source of truth, so data is shared across devices and persists across service restarts and deployments. Keep `DATABASE_URL` and `SESSION_SECRET` private, and use HTTPS (Render provides it). This prototype currently has a single shared workspace for one district/organization; it is not a multi-tenant SaaS app.
+
+For local development, create a PostgreSQL database, set `DATABASE_URL` and `SESSION_SECRET`, run `npm install`, and run `npm start`.
