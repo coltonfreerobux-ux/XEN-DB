@@ -1,1 +1,9 @@
-
+{
+  "name": "district-desk-demo",
+  "version": "1.0.0",
+  "private": true,
+  "description": "A local browser prototype for district admin and staff workflows",
+  "scripts": {
+    "start": "npx serve ."
+  }
+}
